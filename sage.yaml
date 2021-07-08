@@ -1,0 +1,9 @@
+name: "visual_disorder_plugin"
+description: "Numpy example which computes some stats of a test frame."
+version: "0.1.0"
+source:
+  architectures:
+    - "linux/amd64"
+    - "linux/arm64"
+    - "linux/arm/v7"
+  url: "https://github.com/Samaah330/visual_disorder_plugin"
