@@ -8,6 +8,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.utils import shuffle
 import pandas as pd
 import numpy as np
+from waggle.data.vision import Camera, ImageFolder, RGB, BGR
+
 
 
 
@@ -73,7 +75,7 @@ def process_frame(frame):
 def main():
     plugin.init()
 
-    cam = Camera()
+    cam = Camera(format = BGR)
 
     for sample in cam.stream():
         results = process_frame(sample.data)
