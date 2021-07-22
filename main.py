@@ -3,50 +3,49 @@ import logging
 import time
 import numpy as np
 from waggle import plugin
-from waggle.data.vision import Camera
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.utils import shuffle
 import pandas as pd
 import numpy as np
 from waggle.data.vision import Camera, ImageFolder, RGB, BGR
 
-
-
-
 def categorize_ratings(rating):
     '''
-        replace ratings into catergories ( can add more categories once this works)
-        [1, 3)   --> 0    (most disorderly)
-        [3, 5) --> 1
-        [5, 7) --> 2      (most orderly)
+        replace ratings into catergories
 
         :param rating:
         :return: new rating
     '''
-
-    if (rating >= 1 and rating < 4):
+    if (rating < 2.69):
         rating = 0
-    elif (rating >= 4 and rating < 6):
+    elif (rating >= 2.69 and rating < 4.06):
         rating = 1
-    elif (rating >= 6 and rating < 7):
+    elif (rating >= 4.06 and rating < 5.36):
         rating = 2
+    elif (rating >= 5.36):
+        rating = 3
 
     return rating
 
-def process_frame(frame):
+def get_dataframe():
     df = pd.read_excel(
-        r'C:\Users\SamaahMachine\Documents\Argonne\Images with Ratings\training_data.xlsx')
+        r'C:\Users\SamaahMachine\Documents\Argonne\Images with Ratings\normalized_training_data.xlsx')
+
+    plugin.publish('Data:', df)
+
+    return df
+
+def get_accuracy(accuracy):
+    return accuracy
+
+
+def process_frame(frame):
+
+    df = get_dataframe()
 
     # categorize ratings
     df['Order'] = df['Order'].apply(categorize_ratings)
 
-    # normalize all values
-    column_names = ['SED', 'Entropy', 'sdValue', 'sdSat', 'sdHue', 'Mean Value', 'Mean Hue', 'Mean Sat', 'ED']
-
-    for i in range(len(column_names)):
-        df[column_names[i]] = (df[column_names[i]] - df[column_names[i]].min()) / (df[column_names[i]].max() - df[column_names[i]].min())
-
-    # shuffle data set so that the training and test data can have a mix of all labels
     df = shuffle(df)
 
     # assign 80 percent of the data as training data,
@@ -57,18 +56,23 @@ def process_frame(frame):
     train = df[df['is_train'] == True]
     test = df[df['is_train'] == False]
 
-
-    del df['ED']
-    features = df.columns[2:10]
+    features = df.columns[2:11]
     print(features)
 
     features_train = train[features]
     labels_train = train['Order']
+    features_test = test[features]
+    labels_test = test['Order']
 
-    model = RandomForestClassifier(n_estimators = 1000, max_features = "log2", criterion = "entropy", min_samples_split = 6)
+    # Creating a random forest classifier
+    model = RandomForestClassifier(n_estimators=2000, max_features="log2", criterion="entropy", min_samples_split=8)
 
     # Training the classifier
     model.fit(features_train, labels_train)
+
+    accuracy = model.score(features_test, labels_test)
+
+    plugin.publish('Accuracy:', accuracy)
 
     return model.predict(frame)
 
@@ -77,11 +81,11 @@ def main():
 
     cam = Camera(format = BGR)
 
+    # for each image it captures in camera_stream
     for sample in cam.stream():
         results = process_frame(sample.data)
         logging.info("results %s", results)
         time.sleep(60)
-
 
 if __name__ == "__main__":
     main()
