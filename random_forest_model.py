@@ -173,6 +173,8 @@ def create_random_forest():
     # categorize ratings
     df['Order'] = df['Order'].apply(categorize_ratings)
 
+    df = shuffle(df)
+
     display_histogram(df, 3)
 
     # assign 80 percent of the data as training data,
@@ -184,10 +186,8 @@ def create_random_forest():
     train = df[df['is_train'] == True]
     test = df[df['is_train'] == False]
 
-    # save test to an excel file so that you can call it
-
-    # shuffle data set so that the training and test data can have a mix of all labels
-    train = shuffle(train)
+    # export test data to excel file
+    test.to_excel(r'C:\Users\SamaahMachine\Documents\Argonne\Images with Ratings\test_data', index=False)
 
     features = df.columns[2:11]
 
@@ -206,13 +206,13 @@ def create_random_forest():
     # Training the classifier
     model.fit(features_train, labels_train)
 
-    accuracy = find_accuracy(model, features_test, labels_test)
+    accuracy = model.score(features_test, labels_test)
 
-    print(accuracy)  # 65 percent accuracy when split into 4 categories
+    print(accuracy)  # 71 percent accuracy when split into 3 categories
 
-    # save model
-    with open(r'C:\Users\SamaahMachine\Documents\Argonne\Images with Ratings\random_forest_model.pkl', 'wb') as f:
-        pickle.dump(model, f)
+    # # save model
+    # with open(r'C:\Users\SamaahMachine\Documents\Argonne\Images with Ratings\random_forest_model.pkl', 'wb') as f:
+    #     pickle.dump(model, f)
 
 
     return model

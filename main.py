@@ -10,35 +10,42 @@ import numpy as np
 from waggle.data.vision import Camera, ImageFolder, RGB, BGR
 import pickle
 from random_forest_model import create_random_forest
-from random_forest_model import find_accuracy
 
-def get_dataframe():
+def publish_dataframe():
     df = pd.read_excel(
         r'C:\Users\SamaahMachine\Documents\Argonne\Images with Ratings\normalized_training_data.xlsx')
 
     plugin.publish('Data:', df)
 
-    return df
+def publish_accuracy(model):
+    test_data = pd.read_excel(
+        r'C:\Users\SamaahMachine\Documents\Argonne\Images with Ratings\test_data.xlsx')
 
+    features = test_data.columns[2:11]
+
+    features_test = test_data[features]
+    labels_test = test_data['Order']
+
+    accuracy = model.fit(features_test, labels_test)
+
+    plugin.publish("Accuracy: ", accuracy)
 
 def process_frame(model, frame):
-
-    # with open(r'C:\Users\SamaahMachine\Documents\Argonne\Images with Ratings\random_forest_model.pkl', 'rb') as f
-    #     model = pickle.load(f)
-
-
-
-    accuracy = model.score(features_test, labels_test)
-
-    plugin.publish('Accuracy:', accuracy)
 
     return model.predict(frame)
 
 def main():
     plugin.init()
 
+    # uncomment to load in dataframe this way instead
+    # with open(r'C:\Users\SamaahMachine\Documents\Argonne\Images with Ratings\random_forest_model.pkl', 'rb') as f
+    #     model = pickle.load(f)
+
     model = create_random_forest()
-    find_accuracy(model, )
+
+    publish_dataframe()
+
+    publish_accuracy(model)
 
     cam = Camera(format = BGR)
 
