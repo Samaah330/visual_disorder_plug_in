@@ -1,4 +1,4 @@
 authors: Samaah Khan <samaahite@gmail.com>
-collaborators: Nicola Ferrier
+collaborators: Dr. Nicola Ferrier
 funding: This project was funded by Argonne National Laboratory
 license: MIT
