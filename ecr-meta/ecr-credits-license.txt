@@ -1,4 +1,4 @@
 authors: Samaah Khan <samaahite@gmail.com>
 collaborators: Nicola Ferrier
 funding: This project was funded by Argonne National Laboratory
-license: How can the code be shared? is it GNU? CC? etc... # need to find information on this
+license: MIT

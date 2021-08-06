@@ -7,7 +7,6 @@ from pathlib import Path
 import os
 from openpyxl import load_workbook
 
-
 def append_df_to_excel(filename, df, sheet_name='Sheet1', startrow=None,
                        truncate_sheet=False,
                        **to_excel_kwargs):
@@ -118,13 +117,11 @@ def find_mean_hue(hsv_image):
 
     for i in range(len(hsv_1D)):
 
-        # convert to a [0, 360] hue range
         hsv_1D[i] *= 2
 
         angle_x = math.radians(hsv_1D[i])
         angle_y = math.radians(hsv_1D[i])
 
-        # convert to rectangular cartesian coordinates
         x = math.cos(angle_x)
         y = math.sin(angle_y)
 
@@ -134,16 +131,13 @@ def find_mean_hue(hsv_image):
     x_mean = statistics.mean(x_list)
     y_mean = statistics.mean(y_list)
 
-    # convert back to polar coordinates
     mean_angle = ((math.atan(y_mean / x_mean)) * 180) / math.pi
 
-    # check quadrant
     if ((x_mean < 0 and y_mean < 0) or (x_mean < 0 and y_mean > 0)):
         mean_angle += 180
     elif (x_mean > 0 and y_mean < 0):
         mean_angle += 360
 
-    # convert back to hsv scale
     mean_hue = mean_angle / 2
 
     return mean_hue
@@ -190,8 +184,8 @@ def detect_edges(image, lower_threshold, upper_threshold):
     :param upper_threshold: upper threshold for canny edge detector
     :return: image with edges detected
     '''
-    image = cv2.bilateralFilter(image, 9, 75, 75)
 
+    image = cv2.bilateralFilter(image, 9, 75, 75)
     canny = cv2.Canny(image, lower_threshold, upper_threshold)
 
     return canny
@@ -235,13 +229,13 @@ def find_straight_edge_density(image):
 def find_edge_density(image):
     '''
     Computes how much of the image consists of edges
-    :param image:
+    :param image: image whose edge density needs to be find
     :return: percentage of image that is made up of edges
     '''
 
     edges_image = detect_edges(image, 100, 200)
 
-    total_pixels = edges_image.shape[0] * edges_image.shape[1] # rows times columns
+    total_pixels = edges_image.shape[0] * edges_image.shape[1]
     white_pixels = cv2.countNonZero(edges_image)
 
     edge_density_percentage = (white_pixels / total_pixels) * 100
@@ -290,11 +284,13 @@ def add_features():
     :return: dataframe with computed features for each image in training data
     '''
 
-    df = pd.read_excel(r'augmented_data.xlsx')
+    data_file_path = r'augmented_data.xlsx'
+    df = pd.read_excel(data_file_path)
 
     rows_to_delete = []
 
-    for i in range(1105, len(df)):
+    start_row = 1105
+    for i in range(start_row, len(df)):
 
         image_name = df.loc[i].at["originalName"]
         folder = "training_images/TFK/"

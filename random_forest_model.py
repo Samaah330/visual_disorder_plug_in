@@ -124,7 +124,6 @@ def create_random_forest():
 
     df['is_train'] = np.random.uniform(0, 1, len(df)) <= 0.80
 
-    # creating dataframes with test rows and training rows
     train = df[df['is_train'] == True]
     test = df[df['is_train'] == False]
 
